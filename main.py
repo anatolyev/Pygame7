@@ -61,6 +61,17 @@ def start_screen():
         screen.blit(string_rendered, intro_rect)
         text_coord += intro_rect.height + 10
 
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            elif event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
+                return  # начинаем игру
+        pygame.display.flip()
+        clock.tick(FPS)
+
+start_screen()
+
 
 def load_level(filename):
     filename = "data/" + filename
@@ -79,11 +90,13 @@ tile_images = {
 player_image = load_image('mario.png')
 tile_width = tile_height = 50
 
+
 class Tile(pygame.sprite.Sprite):
     def __init__(self, tile_type, pos_x, pos_y):
         super().__init__(tiles_group, all_sprites)
         self.image = tile_images[tile_type]
         self.rect = self.image.get_rect().move(pos_x * tile_width, pos_y * tile_height)
+
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
@@ -107,6 +120,23 @@ def generate_level(level):
 player, level_x, level_y = generate_level(load_level("level1.txt"))
 
 
+class Camera:
+    def __init__(self):
+        self.dx = 0
+        self.dy = 0
+
+    def apply(self, obj):
+        obj.rect.x += self.dx
+        obj.rect.y += self.dy
+
+    def update(self, target):
+        self.dx = -(target.rect.x + target.rect.w // 2 - WIDTH // 2)
+        self.dy = -(target.rect.y + target.rect.h // 2 - HEIGHT // 2)
+
+
+
+camera = Camera()
+
 # Главный Игровой цикл
 while True:
     WIDTH, HEIGHT = pygame.display.get_window_size()
@@ -114,22 +144,22 @@ while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             terminate()
-        elif event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
-            pass  # начинаем игру
 
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
-                pass # player.rect.x -= STEP
+                player.rect.x -= STEP
             if event.key == pygame.K_RIGHT:
-                pass # player.rect.x += STEP
+                player.rect.x += STEP
             if event.key == pygame.K_UP:
-                pass # player.rect.y -= STEP
+                player.rect.y -= STEP
             if event.key == pygame.K_DOWN:
-                pass # player.rect.y += STEP
-    # screen.fill(pygame.Color(0, 0, 0))
-    start_screen()
+                player.rect.y += STEP
+    camera.update(player)
+    for sprite in all_sprites:
+        camera.apply(sprite)
+    screen.fill(pygame.Color(0, 0, 0))
     tiles_group.draw(screen)
     player_group.draw(screen)
     pygame.display.flip()
     clock.tick(FPS)
-
+terminate()
