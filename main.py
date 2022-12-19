@@ -5,10 +5,9 @@ import pygame
 pygame.init()
 pygame.key.set_repeat(200, 70)
 FPS = 50
-WIDTH = 400
-HEIGHT = 300
-STEP = 10
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
+SIZE = WIDTH, HEIGHT  = 400, 300
+STEP = 50
+screen = pygame.display.set_mode(SIZE)
 clock = pygame.time.Clock()
 player = None
 all_sprites = pygame.sprite.Group()
@@ -31,20 +30,25 @@ def load_image(name, color_key=None):
         image = image.convert_alpha()
     return image
 
+# Функция выхода из игры!
 def terminate():
     pygame.quit()
     sys.exit()
 
+
 def start_screen():
-    intro_text = ["ЗАСТАВКА",
+    intro_text = [" Моя супер игра!",
                   "",
-                  "Правила игры",
+                  "",
+                  "",
+                  "          Правила игры",
                   "Если в правилах несколько строк",
                   "приходится выводить их построчно"]
     fon = pygame.transform.scale(load_image('fon.jpeg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
     font = pygame.font.Font(None, 30)
-    text_coord = 60
+    # выводим текст два раза со сдвигом в 1 пиксель для красоты
+    text_coord = 20
     for line in intro_text:
         string_rendered = font.render(line, 1, pygame.Color("green"))
         intro_rect = string_rendered.get_rect()
@@ -52,7 +56,7 @@ def start_screen():
         intro_rect.x = 10
         screen.blit(string_rendered, intro_rect)
         text_coord += intro_rect.height + 10
-    text_coord = 61
+    text_coord = 21
     for line in intro_text:
         string_rendered = font.render(line, 1, pygame.Color("black"))
         intro_rect = string_rendered.get_rect()
@@ -60,7 +64,7 @@ def start_screen():
         intro_rect.x = 11
         screen.blit(string_rendered, intro_rect)
         text_coord += intro_rect.height + 10
-
+    # Ждем пока игрок нажмет кнопку для продолжения игры.
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -124,11 +128,9 @@ class Camera:
     def __init__(self):
         self.dx = 0
         self.dy = 0
-
     def apply(self, obj):
         obj.rect.x += self.dx
         obj.rect.y += self.dy
-
     def update(self, target):
         self.dx = -(target.rect.x + target.rect.w // 2 - WIDTH // 2)
         self.dy = -(target.rect.y + target.rect.h // 2 - HEIGHT // 2)
@@ -140,11 +142,9 @@ camera = Camera()
 # Главный Игровой цикл
 while True:
     WIDTH, HEIGHT = pygame.display.get_window_size()
-
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             terminate()
-
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
                 player.rect.x -= STEP
@@ -162,4 +162,3 @@ while True:
     player_group.draw(screen)
     pygame.display.flip()
     clock.tick(FPS)
-terminate()
